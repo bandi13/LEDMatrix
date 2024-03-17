@@ -6,6 +6,7 @@ import os
 import datetime
 import socket
 import time
+from math import ceil
 
 UDP_PORT=21324
 
@@ -17,19 +18,20 @@ DELAY_PER_PIXEL=0.0003
 def sendPanel(sock, ip, port, p):
 #    print("type={}, shape={}, len={}".format(type(p),p.shape,len(p)))
 #    os.system('cls' if os.name == 'nt' else 'clear')
-    for row in range(int(HEIGHT / ROW_PER_PACKET)):
+    for row in range(ceil(HEIGHT / ROW_PER_PACKET)):
         m = []
         m.append(4) # 1- WARLS, 2-DRGB, 3-DRGBW, 4-DNRGB
         m.append(1) # Seconds to wait before return to normal (255-no timeout)
-        i_offset = row * WIDTH * ROW_PER_PACKET
-        m.append(int(i_offset / 256))  # High-Byte Index of pixel to change
-        m.append(int(i_offset % 256))  # Low-Byte Index of pixel to change
+        startRow = row * ROW_PER_PACKET
+        iOffset = startRow * WIDTH
+        m.append(int(iOffset / 256))  # High-Byte Index of pixel to change
+        m.append(int(iOffset % 256))  # Low-Byte Index of pixel to change
 #        print("{0:3},{1:3}={2:5}:".format(m[2],m[3],i_offset), end='')
-        for n in range(ROW_PER_PACKET):
+        for n in range(min(ROW_PER_PACKET,HEIGHT - row * ROW_PER_PACKET)):
             for col in range(WIDTH):
-                m.append(p[row*ROW_PER_PACKET+n,col,2])  # Pixel blue value
-                m.append(p[row*ROW_PER_PACKET+n,col,1])  # Pixel green value
-                m.append(p[row*ROW_PER_PACKET+n,col,0])  # Pixel red value
+                m.append(p[startRow+n,col,2])  # Pixel blue value
+                m.append(p[startRow+n,col,1])  # Pixel green value
+                m.append(p[startRow+n,col,0])  # Pixel red value
 #                print(" {0:5},{1:5},{2:5}".format(p[row*ROW_PER_PACKET+n,col,0],p[row*ROW_PER_PACKET+n,col,1],p[row*ROW_PER_PACKET+n,col,2]), end='')
         m = bytes(m)
 #        print("({})".format(len(m)))

@@ -68,15 +68,23 @@ def print2d(arr):
 
 if __name__ == '__main__':
     if len(sys.argv) <= 1:
-        print("Usage: {} <filename>".format(sys.argv[0]))
+        print("Usage: {} [--loop | --preview]* <filename> [<hostname>]".format(sys.argv[0]))
         sys.exit()
 
+    opts = [opt for opt in sys.argv[1:] if opt.startswith("-")]
+    args = [arg for arg in sys.argv[1:] if not arg.startswith("-")]
+
+    filename = args[0]
+    hostname = 'wled.local'
+    if len(args) > 1:
+        hostname = args[1]
+
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    ip = socket.gethostbyname('wled.local')
+    ip = socket.gethostbyname(hostname)
     print("Sending to: {}".format(ip))
 
     # Open the video file
-    cap = cv2.VideoCapture(sys.argv[1])
+    cap = cv2.VideoCapture(filename)
 
     # Check if the video file is opened successfully
     if not cap.isOpened():
@@ -94,9 +102,11 @@ if __name__ == '__main__':
         curT = datetime.datetime.now()
         delta = curT - startT
         timestamp = int(delta.total_seconds() * 1000)
-        if (timestamp > 1000.0 * frame_count / fps): # loop video
-            timestamp = 0
-            startT = datetime.datetime.now()
+        if "--loop" in opts:
+            if (timestamp > 1000.0 * frame_count / fps): # loop video
+                timestamp = 0
+                startT = datetime.datetime.now()
+
         frame = get_frame_at_timestamp(cap, timestamp)
 #        print(len(frame))
 
@@ -107,9 +117,11 @@ if __name__ == '__main__':
 #            print(len(resized_frame))
 #            print2d(resized_frame)
 
-            preview_frame = resize_frame(resized_frame, 800, 600)
-            cv2.imshow('frame', preview_frame)
-            cv2.waitKey(1)
+            if "--preview" in opts:
+                preview_frame = resize_frame(resized_frame, 800, 600)
+                cv2.imshow('frame', preview_frame)
+                cv2.waitKey(1)
+
             delta = curT - lastT
             print("Current FPS={0:5.2f}     ".format(1 / delta.total_seconds()), end='\r', flush=True)
             lastT = curT

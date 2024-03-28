@@ -6,6 +6,7 @@ import os
 import datetime
 import socket
 import time
+import requests
 from math import ceil
 
 UDP_PORT=21324
@@ -14,6 +15,8 @@ WIDTH=48
 HEIGHT=48
 ROW_PER_PACKET=10
 DELAY_PER_PIXEL=0.0003
+# Brightness 0-255
+BRIGHTNESS=128
 
 def sendPanel(sock, ip, port, p):
     packet_size = min(ROW_PER_PACKET, HEIGHT)
@@ -84,6 +87,10 @@ if __name__ == '__main__':
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     ip = socket.gethostbyname(hostname)
     print("Sending to: {}".format(ip))
+
+    url = "http://"+str(ip)+"/win&A="+str(BRIGHTNESS)
+    print("Setting brightness: {}".format(url))
+    requests.get(url)
 
     # Open the video file
     cap = cv2.VideoCapture(filename)

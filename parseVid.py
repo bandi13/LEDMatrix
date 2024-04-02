@@ -13,13 +13,14 @@ UDP_PORT=21324
 
 WIDTH=48
 HEIGHT=48
-ROW_PER_PACKET=10
-DELAY_PER_PIXEL=0.0003
-# Brightness 0-255
-BRIGHTNESS=128
 
+MAX_FPS=10
+# Brightness 0-255
+BRIGHTNESS=250
+
+# DNRGB limit is 489 LEDs per packet according to https://kno.wled.ge/interfaces/udp-realtime/
+ROW_PER_PACKET=int(489 / WIDTH)
 def sendPanel(sock, ip, port, p):
-    packet_size = min(ROW_PER_PACKET, HEIGHT)
     num_packets = (HEIGHT + ROW_PER_PACKET - 1) // ROW_PER_PACKET
 
     for packet_index in range(num_packets):
@@ -41,7 +42,6 @@ def sendPanel(sock, ip, port, p):
 
         m = bytes(m)
         sock.sendto(m, (ip, port))
-        time.sleep(DELAY_PER_PIXEL * WIDTH)
 
 def get_frame_at_timestamp(cap, timestamp):
     # Set the video capture position to the specified timestamp (in milliseconds)
@@ -109,6 +109,13 @@ if __name__ == '__main__':
     lastT = startT
     while ( cap.isOpened() ):
         curT = datetime.datetime.now()
+        if 1 / (curT - lastT).total_seconds() > min(MAX_FPS,fps):
+            time.sleep(1.0/min(MAX_FPS,fps) - (curT.timestamp() - lastT.timestamp()))
+            curT = datetime.datetime.now()
+
+        print("Current FPS={0:5.2f}     ".format(1 / (curT - lastT).total_seconds()), end='\r', flush=True)
+        lastT = curT
+
         delta = curT - startT
         timestamp = int(delta.total_seconds() * 1000)
         if "--loop" in opts:
@@ -131,9 +138,6 @@ if __name__ == '__main__':
                 cv2.imshow('frame', preview_frame)
                 cv2.waitKey(1)
 
-            delta = curT - lastT
-            print("Current FPS={0:5.2f}     ".format(1 / delta.total_seconds()), end='\r', flush=True)
-            lastT = curT
         else:
             print("Exit loop")
             break

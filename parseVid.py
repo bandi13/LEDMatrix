@@ -103,6 +103,10 @@ if __name__ == '__main__':
     # Get the frames per second
     fps = cap.get(cv2.CAP_PROP_FPS) 
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) - 1
+    if frame_count < 0: # single image
+        fps = 1
+        frame_count = 1
+        ret, frame = cap.read()
     print("File FPS={0}, Frame count={1}".format(fps,frame_count))
 
     startT = datetime.datetime.now()
@@ -119,11 +123,12 @@ if __name__ == '__main__':
         delta = curT - startT
         timestamp = int(delta.total_seconds() * 1000)
         if "--loop" in opts:
-            if (timestamp > 1000.0 * frame_count / fps): # loop video
+            if (timestamp >= 1000.0 * frame_count / fps): # loop video
                 timestamp = 0
                 startT = datetime.datetime.now()
 
-        frame = get_frame_at_timestamp(cap, timestamp)
+        if frame_count > 1:
+            frame = get_frame_at_timestamp(cap, timestamp)
 #        print(len(frame))
 
         if frame is not None:

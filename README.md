@@ -10,6 +10,9 @@ The Python script has a few options:
 
 The script takes in a `filename` and optionally a `hostname` for your WLED board. I've renamed mine to be `wled.local`, but yours might have some random strings attached to the name.
 
+## More info
+You can see a demonstration of this project in this [YouTube video](https://youtu.be/EG4NQ7NBF4U). Further, there is a [blog entry](https://bandilabs.home.blog/2024/04/22/achievement-unlocked-the-matrix-on-a-matrix/) describing the complete project.
+
 # Support
 If you found this project useful, consider supporting my work:
 [![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoff.ee/bandi13)

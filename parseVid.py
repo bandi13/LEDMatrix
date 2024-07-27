@@ -103,7 +103,7 @@ if __name__ == '__main__':
     # Get the frames per second
     fps = cap.get(cv2.CAP_PROP_FPS) 
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) - 1
-    if frame_count < 0: # single image
+    if frame_count <= 0: # single image
         fps = 1
         frame_count = 1
         ret, frame = cap.read()

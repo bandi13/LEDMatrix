@@ -16,7 +16,7 @@ HEIGHT=48
 
 MAX_FPS=10
 # Brightness 0-255
-BRIGHTNESS=250
+BRIGHTNESS=50
 
 # DNRGB limit is 489 LEDs per packet according to https://kno.wled.ge/interfaces/udp-realtime/
 ROW_PER_PACKET=int(489 / WIDTH)
